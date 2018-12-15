@@ -1,3 +1,0 @@
-/home/elwingh/CLionProjects/automate/build/CMakeFiles/rebuild_cache.dir
-/home/elwingh/CLionProjects/automate/build/CMakeFiles/fa.dir
-/home/elwingh/CLionProjects/automate/build/CMakeFiles/edit_cache.dir

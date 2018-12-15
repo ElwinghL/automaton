@@ -33,5 +33,5 @@
 
 # Ignore folders
 
-build/
+#build/
 .idea/
