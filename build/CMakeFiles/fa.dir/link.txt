@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -std=c++11 -O2 -g -g  -rdynamic CMakeFiles/fa.dir/fa.cc.o CMakeFiles/fa.dir/Automaton.cc.o CMakeFiles/fa.dir/State.cpp.o CMakeFiles/fa.dir/Transition.cpp.o  -o fa -lpthread 
