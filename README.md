@@ -1,1 +1,2 @@
-# automaton
+# Project Automaton
+* By Clément LEBOEUF
