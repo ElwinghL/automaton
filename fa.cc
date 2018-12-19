@@ -18,6 +18,8 @@ int main() {
     automate2.addState(1);
     automate2.addState(2);
     automate2.addState(3);
+    automate2.addState(4);
+    automate2.addState(5);
     automate2.setStateInitial(0);
     automate2.setStateFinal(3);
     automate2.addTransition(0, 'a', 1);
@@ -27,6 +29,8 @@ int main() {
     automate2.addTransition(0,'c',2);
     automate2.addTransition(2,'a',3);
     automate2.addTransition(3,'a',3);
+    automate2.addTransition(4,'a',5);
+    automate2.addTransition(5,'a',4);
 
 
 

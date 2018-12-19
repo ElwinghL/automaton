@@ -160,6 +160,7 @@ namespace fa {
          *
          */
         void removeNonCoAccessibleStates();
+
     };
 
 }; // namespace fa

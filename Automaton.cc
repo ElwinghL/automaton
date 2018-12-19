@@ -243,29 +243,42 @@ namespace fa {
     }
 
     void Automaton::removeNonCoAccessibleStates() {
-        std::set<int> initial, final;
+        std::set<int> finalOrClose;
 
         for (auto st : states) {
-            if (st.second.isIsInit()) {
-                initial.insert(st.second.getNumber());
-            }
             if (st.second.isIsFinal()) {
-                final.insert(st.second.getNumber());
+                finalOrClose.insert(st.second.getNumber());
             }
         }
-        std::set<int> theWayFromFinal = final;
-        for (auto alpha : alphabet) {
-            for (auto toSt : theWayFromFinal) {
-                for (auto fromSt : states) {
+
+        u_long numberOfStateCoAccessible = finalOrClose.size();
+        // PAS OPTIMISEE
+        for (auto fromSt : states) {
+            for (auto toSt : finalOrClose) {
+                for (auto alpha : alphabet) {
                     if (hasTransition(fromSt.second.getNumber(),alpha,toSt)) {
-                        theWayFromFinal.insert(fromSt.second.getNumber());
+                        finalOrClose.insert(fromSt.second.getNumber());
                     }
                 }
             }
         }
-        for (auto nonAccessibleState : states) {
-            if (theWayFromFinal.find(nonAccessibleState.second.getNumber()) == theWayFromFinal.end()) {
-                removeState(nonAccessibleState.second.getNumber());
+        while (numberOfStateCoAccessible != finalOrClose.size()) {
+            numberOfStateCoAccessible = finalOrClose.size();
+
+            for (auto fromSt : states) {
+                for (auto toSt : finalOrClose) {
+                    for (auto alpha : alphabet) {
+                        if (hasTransition(fromSt.second.getNumber(),alpha,toSt)) {
+                            finalOrClose.insert(fromSt.second.getNumber());
+                        }
+                    }
+                }
+            }
+        }
+
+        for (auto stateToDelete : states) {
+            if (finalOrClose.find(stateToDelete.second.getNumber()) == finalOrClose.end()) {
+                removeState(stateToDelete.first);
             }
         }
     };

@@ -33,5 +33,6 @@
 
 # Ignore folders
 
-#build/
+build/
 .idea/
+doc/
