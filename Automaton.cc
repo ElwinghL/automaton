@@ -4,6 +4,81 @@
 #include <iostream>
 #include <algorithm>
 
+namespace fa {
+/*
+  ____    _             _
+ / ___|  | |_    __ _  | |_    ___
+ \___ \  | __|  / _` | | __|  / _ \
+  ___) | | |_  | (_| | | |_  |  __/
+ |____/   \__|  \__,_|  \__|  \___|
+
+*/
+    fa::State::State() = default;;
+
+    fa::State::State(int num) {
+        number = num;
+    };
+
+    int fa::State::getNumber() const {
+        return number;
+    };
+
+    bool State::isIsInit() const {
+        return IsInit;
+    }
+
+    void State::setIsInit(bool IsInit) {
+        State::IsInit = IsInit;
+    }
+
+    bool State::isIsFinal() const {
+        return IsFinal;
+    }
+
+    void State::setIsFinal(bool IsFinal) {
+        State::IsFinal = IsFinal;
+    }
+/*
+  _____                                _   _     _
+ |_   _|  _ __    __ _   _ __    ___  (_) | |_  (_)   ___    _ __
+   | |   | '__|  / _` | | '_ \  / __| | | | __| | |  / _ \  | '_ \
+   | |   | |    | (_| | | | | | \__ \ | | | |_  | | | (_) | | | | |
+   |_|   |_|     \__,_| |_| |_| |___/ |_|  \__| |_|  \___/  |_| |_|
+
+ */
+    fa::Transition::Transition() = default;;
+
+    fa::Transition::Transition(int a, char c, int b) {
+        begin_state = a;
+        end_state = b;
+        letter = c;
+    }
+
+    int Transition::getBegin_state() const {
+        return begin_state;
+    }
+
+    void Transition::setBegin_state(int begin_state) {
+        Transition::begin_state = begin_state;
+    }
+
+    int Transition::getEnd_state() const {
+        return end_state;
+    }
+
+    void Transition::setEnd_state(int end_state) {
+        Transition::end_state = end_state;
+    }
+
+    char Transition::getLetter() const {
+        return letter;
+    }
+
+    void Transition::setLetter(char letter) {
+        Transition::letter = letter;
+    };
+
+
 /*
                      _                                 _
      /\             | |                               | |
@@ -14,9 +89,6 @@
 
 
 */
-
-namespace fa {
-
     void fa::Automaton::addState(int state) {
         if (hasState(state)) return;
         states.insert(std::pair<int, State>(state, State(state)));
@@ -51,7 +123,7 @@ namespace fa {
         states[state].setIsFinal(true);
     };
 
-    bool fa::Automaton::isStateFinal(int state) {
+    bool fa::Automaton::isStateFinal(int state) const {
         return states.at(state).isIsFinal();
     };
 
@@ -78,7 +150,7 @@ namespace fa {
 
     void Automaton::prettyPrint(std::ostream &os) const {
         //Initials states
-        std::cout<<"Initial States : "<<std::endl;
+        os << "Initial States : "<<std::endl;
         for (const auto& state : states)
         {
             if (state.second.isIsInit()) {
@@ -86,38 +158,38 @@ namespace fa {
             }
         }
 
-        std::cout << std::endl;
+        os << std::endl;
 
-        std::cout<<"Final States : "<<std::endl;
+        os <<"Final States : "<<std::endl;
         for (const auto& state : states) {
             if (state.second.isIsFinal()) {
                 std::cout << state.first << ' ';
             }
         }
 
-        std::cout << std::endl;
-        std::cout << "Nombre d'états : " << countStates() << std::endl;
+        os << std::endl;
+        os << "Nombre d'états : " << countStates() << std::endl;
         //Transitions
-        std::cout<<"Transitions : "<<std::endl;
+        os <<"Transitions : "<<std::endl;
         int previousState=999999;
 
         char previousChar=0;
-        std::cout << "Nombre de transitions : " << countTransitions() << std::endl;
+        os << "Nombre de transitions : " << countTransitions() << std::endl;
         for (Transition const& tr : transitions) {
             if (tr.getBegin_state() != previousState) {
                 previousState = tr.getBegin_state();
                 previousChar=0;
-                std::cout << "Pour l'état " << previousState << " :" << std::endl;
+                os << "Pour l'état " << previousState << " :" << std::endl;
             }
             if (tr.getBegin_state() == previousState) {
                 if (tr.getLetter() != previousChar) {
                     previousChar = tr.getLetter();
-                    std::cout << "\tPour la lettre " << previousChar << " :" << "\t";
+                    os << "\tPour la lettre " << previousChar << " :" << "\t";
                 }
                 if (tr.getLetter() == previousChar) {
-                    std::cout << tr.getEnd_state() << "\t";
+                    os << tr.getEnd_state() << "\t";
                 }
-                std::cout << std::endl;
+                os << std::endl;
             }
         }
     };
@@ -281,7 +353,89 @@ namespace fa {
                 removeState(stateToDelete.first);
             }
         }
-    };
+    }
+
+    Automaton Automaton::createProduct(const Automaton &lhs, const Automaton &rhs) {
+        Automaton ret =  Automaton();
+        std::map<std::pair<int,int>,int> workingOn;
+
+        std::set<int> lhsInit;
+        std::set<int> rhsInit;
+        std::set<char> alphabetFromBoth;
+
+        for (auto alpha1 : lhs.alphabet) {
+            alphabetFromBoth.insert(alpha1);
+        }
+        for (auto alpha2 : rhs.alphabet) {
+            alphabetFromBoth.insert(alpha2);
+        }
+
+        for (auto lhsSt : lhs.states) {
+            if (lhs.isStateInitial(lhsSt.first)) {
+                lhsInit.insert(lhsSt.first);
+            }
+        }
+        for (auto rhsSt : rhs.states) {
+            if (rhs.isStateInitial(rhsSt.first)) {
+                rhsInit.insert(rhsSt.first);
+            }
+        }
+        int currentNumber = 0;
+        for (auto init1 : lhsInit) {
+            for (auto init2 : rhsInit) {
+                ret.addState(currentNumber);
+                ret.setStateInitial(currentNumber);
+                std::cout << "Merged from left automata " << init1 << " and from right automata " << init2 << " into " << currentNumber <<"\n";
+                workingOn.insert(std::make_pair(std::pair<int,int>(init1,init2),currentNumber));
+                if (lhs.isStateFinal(init1) && rhs.isStateFinal(init2)) {
+                    ret.setStateFinal(currentNumber);
+                }
+                ++currentNumber;
+            }
+        }
+
+        while (!workingOn.empty()) {
+            std::map<std::pair<int,int>,int> copy = workingOn;
+            for (auto pair : workingOn) {
+                int p = pair.first.first;
+                int q = pair.first.second;
+                int thatState = pair.second;
+                workingOn.erase(std::pair<int,int>(p,q));
+                if ((lhs.isStateFinal(p)) && (rhs.isStateFinal(q))) {
+                    ret.setStateFinal(thatState);
+                }
+
+                for (auto lhsSt : lhs.states) {
+                    int pPrime = lhsSt.first;
+                    for (auto rhsSt : rhs.states) {
+                        int qPrime = rhsSt.first;
+                        for (auto alpha : alphabetFromBoth) {
+                            if (lhs.hasTransition(p,alpha,pPrime)) {
+                                if (rhs.hasTransition(q,alpha,qPrime)) {
+
+                                    if (copy.find(std::pair<int,int>(pPrime,qPrime)) == copy.end()) {
+                                        ret.addState(currentNumber);
+                                        workingOn.insert(std::make_pair(std::pair<int,int>(pPrime,qPrime),currentNumber));
+                                        copy.insert(std::make_pair(std::pair<int,int>(pPrime,qPrime),currentNumber));
+                                        std::cout << "Merged from left automata " << pPrime << " and from right automata " << qPrime << " into " << currentNumber <<"\n";
+                                        ++currentNumber;
+                                    }
+                                    auto toThatState = copy.find(std::pair<int,int>(pPrime,qPrime));
+                                    ret.addTransition(thatState,alpha,toThatState->second);
+                                    std::cout << "Added this transitions (" << p <<","<< q <<") " << alpha << " (" << pPrime <<","<< qPrime <<")\n";
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            std::cout << "Copy.size = " << copy.size() << "\n";
+            std::cout << "workingOn.size = " << workingOn.size() << "\n";
+        }
+
+        return ret;
+    }
+
 
     Automaton::Automaton() = default;;
 };

@@ -2,12 +2,76 @@
 #define AUTOMATON_H
 
 #include <cstddef>
+#include <iostream>
 #include <map>
 #include <set>
 
-#include "State.h"
-#include "Transition.h"
+namespace fa {
+/*
+  ____    _             _
+ / ___|  | |_    __ _  | |_    ___
+ \___ \  | __|  / _` | | __|  / _ \
+  ___) | | |_  | (_| | | |_  |  __/
+ |____/   \__|  \__,_|  \__|  \___|
 
+*/
+    class State {
+    private:
+        int number;
+        bool IsInit = false;
+        bool IsFinal = false;
+
+    public:
+
+        //Constructor
+        State();
+        State(int num);
+
+        bool isIsInit() const;
+
+        void setIsInit(bool IsInit);
+
+        bool isIsFinal() const;
+
+        void setIsFinal(bool IsFinal);
+
+        int getNumber() const;
+
+    };
+/*
+  _____                                _   _     _
+ |_   _|  _ __    __ _   _ __    ___  (_) | |_  (_)   ___    _ __
+   | |   | '__|  / _` | | '_ \  / __| | | | __| | |  / _ \  | '_ \
+   | |   | |    | (_| | | | | | \__ \ | | | |_  | | | (_) | | | | |
+   |_|   |_|     \__,_| |_| |_| |___/ |_|  \__| |_|  \___/  |_| |_|
+
+ */
+    class Transition {
+    private:
+        int begin_state;
+        int end_state;
+        char letter;
+    public:
+        //Constructor
+        Transition();
+        Transition(int a, char c, int b);
+
+        int getBegin_state() const;
+
+        void setBegin_state(int begin_state);
+
+        int getEnd_state() const;
+
+        void setEnd_state(int end_state);
+
+        char getLetter() const;
+
+        void setLetter(char letter);
+
+        bool operator< (const Transition &other) const{
+            return std::tie(begin_state, letter, end_state) < std::tie(other.begin_state, other.letter, other.end_state);
+        }
+    };
 /*
                      _                                 _
      /\             | |                               | |
@@ -18,9 +82,6 @@
 
 
 */
-
-namespace fa {
-
     class Automaton {
     private:
         std::set<char> alphabet;
@@ -29,7 +90,25 @@ namespace fa {
     public:
         //Constructor
         Automaton();
-
+        //Other
+        int checkAutomaton() const {
+            if (isComplete()) {
+                std::cout << "L'automate est complet !\n";
+            } else {
+                std::cout << "L'automate n'est pas complet !\n";
+            }
+            if (isDeterministic()) {
+                std::cout << "L'automate est déterministe !\n";
+            } else {
+                std::cout << "L'automate n'est pas déterministe !\n";
+            }
+            if (isLanguageEmpty()) {
+                std::cout << "Le langage reconnu est vide !\n";
+            } else {
+                std::cout << "Le langage reconnu n'est pas vide !\n";
+            }
+            return 0;
+        }
         //States
         /**
          * Add the number given state to the automaton
@@ -80,7 +159,7 @@ namespace fa {
          * @param state
          * @return true if yes false otherwise
          */
-        bool isStateFinal(int state);
+        bool isStateFinal(int state) const;
 
         //Transitions
         /**
@@ -160,7 +239,10 @@ namespace fa {
          *
          */
         void removeNonCoAccessibleStates();
-
+        /**
+         *
+         */
+        static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
     };
 
 }; // namespace fa
